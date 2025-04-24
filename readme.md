@@ -1,116 +1,224 @@
-# Tunisian Real Estate Analytics Platform
+# Ballouchi.com Scraper
+![image](https://github.com/user-attachments/assets/694afcd5-8ba0-4c97-b8ea-af9ba6b1d107)
 
-![image](https://github.com/user-attachments/assets/aa865595-21de-44d1-a8e6-3ebed09968af)
+## Project Overview
 
+This application is a comprehensive web scraping solution designed to extract classified advertisements from Ballouchi.com, a popular Tunisian classifieds website. The project focuses on real estate and vehicle listings, with data being stored in a Supabase database and made accessible through a REST API and a responsive web interface.
 
-## Overview
+## Project Context and Objectives
 
-A comprehensive real estate analytics platform that scrapes, analyzes, and visualizes property listings data from Ballouchi.com. The platform provides interactive dashboards, detailed analytics, and data export capabilities to help users understand the Tunisian real estate market trends.
+This project aims to develop a scraping solution to extract classified ads published in Tunisia during January and February 2025. The project focuses primarily on real estate listings from Ballouchi.com, with data being stored and accessible through a REST API.
+
+### Project Scope
+
+- **Target Website**: Ballouchi.com  
+- **Ad Types**: Sales and rentals (apartments, houses, land, commercial premises, etc.)  
+- **Data Formats**: CSV, JSON, Excel  
+- **Delivery**: REST API exposing collected data  
+- **Version Control**: Git/GitHub for code tracking  
 
 ## Features
 
-### Data Collection
-- Automated scraping of real estate listings from Ballouchi.com
-- Multi-page scraping support (up to 6 pages per category)
-- Intelligent data extraction for property details
-- Automatic categorization of property types
-- Surface area extraction from descriptions
+- **Multi-page Scraping**: Automatically scrapes up to 6 pages of classified ads from Ballouchi.com  
+- **Category Filtering**: Supports filtering by category (Real Estate/Vehicles)  
+- **Comprehensive Data Extraction**:  
+  - Title  
+  - Price  
+  - Property Type (Apartment, house, land, commercial premises, etc.)  
+  - Location (City, neighborhood)  
+  - Surface Area (automatically extracted from descriptions using regex)  
+  - Description  
+  - Seller Contact  
+  - Publication Date  
+  - Original Ad URL (with absolute URL handling)  
+- **Data Export**: Export data in multiple formats (CSV, JSON, Excel)  
+- **Real-time Updates**: Refresh data with a single click  
+- **Responsive Web Interface**: Built with React and Tailwind CSS  
 
-### Interactive Dashboard
-- **Real-time Filtering**
-  - Property type filter
-  - Location filter
-  - Price range selector
-  - Date range filter
+## Technical Architecture
 
-- **Key Metrics**
-  - Total listings count
-  - Average property price
-  - Average surface area
-  - Number of unique locations
+The application follows a client-server architecture:
 
-- **Advanced Visualizations**
-  - Property type distribution (Pie Chart)
-  - Price distribution (Bar Chart)
-  - Price vs Surface Area analysis (Scatter Plot)
-  - Average price by property type (Bar Chart)
-  - Surface area distribution (Area Chart)
-  - Scraping timeline (Line Chart)
+### Backend (FastAPI)
 
-### Data Management
-- Secure storage in Supabase database
-- Export functionality (CSV, JSON, Excel)
-- Real-time data updates
-- Data integrity checks
+- **Data Scraping Engine**: Uses Selenium with Microsoft Edge WebDriver and BeautifulSoup  
+- **Database Integration**: Supabase (PostgreSQL) for data storage  
+- **REST API**: Exposes endpoints for data retrieval, scraping initiation, and data export  
 
-## Tech Stack
+### Frontend (React + TypeScript)
 
-### Frontend
-- React 18
-- TypeScript
-- Tailwind CSS
-- Recharts for data visualization
-- React Router for navigation
-- Lucide React for icons
+- **UI Framework**: React with TypeScript  
+- **Styling**: Tailwind CSS for responsive design  
+- **State Management**: React hooks for local state management  
+- **API Integration**: Direct integration with Supabase client and backend API  
 
-### Backend
-- FastAPI
-- Python 3.8+
-- Selenium for web scraping
-- BeautifulSoup4 for HTML parsing
-- Supabase for database
+## How the Scraper Works
 
-### Database
-- PostgreSQL (via Supabase)
-- Row Level Security enabled
-- Automated migrations
+### Multi-page Scraping Process
 
-## Getting Started
+1. **Initialization**: Sets up a headless Microsoft Edge browser using Selenium  
+2. **Page Iteration**: Iterates through up to 6 pages of listings:  
+   - First page: `https://www.ballouchi.com/annonces/{category}/`  
+   - Subsequent pages: `https://www.ballouchi.com/annonces/{category}/page-{page}.html`  
+3. **Data Extraction**: For each page:  
+   - Waits for the product list to load  
+   - Extracts all ad containers from the page  
+   - Parses each ad container to extract detailed information  
+4. **Intelligent Parsing**:  
+   - Extracts property types from titles using keyword matching  
+   - Extracts surface area from descriptions using regex patterns  
+   - Ensures all URLs are absolute by prepending the domain when necessary  
+5. **Error Handling**: Implements robust error handling at multiple levels:  
+   - Gracefully handles missing elements in ad containers  
+   - Stops pagination if no products are found on a page  
+   - Logs detailed error information for debugging  
+
+## Technical Specifications
+
+### 1. Data Scraping
+
+- Uses Selenium and BeautifulSoup for data extraction  
+- Extracts all key information from listings  
+- Handles both real estate and vehicle categories  
+- Implements intelligent property type and surface area extraction  
+- Supports multi-page scraping (up to 6 pages per category)  
+
+### 2. Data Storage
+
+- Primary storage in Supabase (PostgreSQL)  
+- Export capabilities in CSV, JSON, and Excel formats  
+- Automatic timestamp tracking for all scraped ads  
+
+### 3. REST API Development
+
+- Built with FastAPI  
+- Main endpoints:  
+  - `GET /annonces` → Returns all collected ads  
+  - `POST /scrape` → Initiates a new scraping session  
+  - `GET /export` → Exports data in the desired format  
+
+## Installation
 
 ### Prerequisites
-- Node.js 18+
-- Python 3.8+
-- Microsoft Edge (for web scraping)
 
-### Environment Setup
+- Python 3.8 or higher  
+- Node.js 18 or higher  
+- npm or yarn  
+- Microsoft Edge WebDriver (automatically installed)  
+
+### Backend Setup
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
-   cd tunisian-real-estate-analytics
+   cd tunisian-classifieds-scraper
    ```
 
-2. Install frontend dependencies:
+2. Create and activate a virtual environment:
+
    ```bash
-   npm install
+   python -m venv venv
+   source venv/bin/activate   # On macOS/Linux
+   venv\Scripts\activate      # On Windows
    ```
 
 3. Install Python dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. Set up environment variables:
 
-   Create a `.env` file:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   Create a `.env` file in the root directory and add:
+
+   ```ini
    SUPABASE_URL=your_supabase_url
    SUPABASE_KEY=your_supabase_key
+   ```
+
+### Frontend Setup
+
+1. Install Node.js dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Create a `.env` file in the root directory and add:
+
+   ```ini
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
    ```
 
 ### Running the Application
 
 1. Start the backend server:
+
    ```bash
    python main.py
    ```
+   The API will be available at `http://localhost:8000`
 
 2. Start the frontend development server:
+
    ```bash
    npm run dev
    ```
+   The web interface will be available at `http://localhost:5173`
+
+## API Documentation
+
+### GET /
+
+- **Description**: Welcome message  
+- **Response**:
+
+   ```json
+   {
+     "message": "Welcome to Tunisian Classifieds Scraper API"
+   }
+   ```
+
+### GET /annonces
+
+- **Description**: Retrieve all scraped ads  
+- **Response Example**:
+
+   ```json
+   [
+     {
+       "id": "uuid",
+       "title": "Apartment for Sale",
+       "price": 250000,
+       "category": "immobilier",
+       "property_type": "Appartement",
+       "location": "Tunis",
+       "surface": 120,
+       "description": "Beautiful apartment...",
+       "contact": "+216 XX XXX XXX",
+       "publication_date": "2025-03-19T20:14:15Z",
+       "url": "https://www.ballouchi.com/...",
+       "source_website": "ballouchi.com"
+     }
+   ]
+   ```
+
+### POST /scrape
+
+- **Description**: Start scraping ads  
+- **Query Parameters**:  
+  - `category`: `"immobilier"` or `"vehicules"` (default: `"immobilier"`)  
+- **Response**: Scraping status and list of scraped ads
+
+### GET /export
+
+- **Description**: Export ads data  
+- **Query Parameters**:  
+  - `format`: `"csv"`, `"json"`, or `"excel"` (default: `"csv"`)  
+- **Response**: File download in the specified format
 
 ## Database Schema
 
@@ -128,91 +236,14 @@ CREATE TABLE ads (
     publication_date timestamptz,
     url text NOT NULL,
     source_website text NOT NULL,
-    created_at timestamptz DEFAULT now(),
-    scraped_at timestamptz DEFAULT now()
+    created_at timestamptz DEFAULT now()
 );
 ```
 
-## API Endpoints
+## Future Enhancements
 
-### GET /annonces
-- Retrieves all scraped property listings
-- Supports filtering and pagination
-- Returns JSON array of listings
-
-### POST /scrape
-- Initiates new scraping session
-- Parameters:
-  - `category`: Property category to scrape
-- Returns scraping status and results
-
-### GET /export
-- Exports data in various formats
-- Parameters:
-  - `format`: "csv", "json", or "excel"
-- Returns downloadable file
-
-## Dashboard Features
-
-### Filtering Capabilities
-- Filter by property type
-- Filter by location
-- Set price range
-- Select date range
-- Real-time updates
-
-### Visualization Components
-1. **Property Distribution**
-   - Interactive pie chart
-   - Color-coded segments
-   - Hover tooltips
-
-2. **Price Analysis**
-   - Price range distribution
-   - Average price trends
-   - Price comparison by property type
-
-3. **Surface Area Analysis**
-   - Surface range distribution
-   - Area vs price correlation
-   - Average surface by property type
-
-4. **Location Insights**
-   - Geographic distribution
-   - Popular areas
-   - Price variations by location
-
-5. **Timeline Analysis**
-   - Scraping history
-   - Listing trends
-   - Temporal patterns
-
-## Security
-
-- Row Level Security (RLS) enabled
-- Secure API endpoints
-- Environment variable protection
-- Data validation and sanitization
-
-## Performance Optimization
-
-- Efficient data loading
-- Responsive design
-- Optimized database queries
-- Caching mechanisms
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-
-
-## Acknowledgments
-
-- Data source: Ballouchi.com
-- Built with Supabase
-- Powered by React and FastAPI
+- Add support for more Tunisian classified websites  
+- Implement scheduled scraping using background tasks  
+- Add user authentication for personalized data views  
+- Implement advanced filtering and search functionality  
+- Add data visualization for market trends
